@@ -17,22 +17,15 @@ export async function POST(request: NextRequest): Promise<NextResponse<OrderResp
     // Generate a unique workflow ID
     const workflowId = `order-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-    // Start the workflow with improved timeout configuration
+    // Start the workflow with timeout
     const handle = await temporalClient.workflow.start('ProcessOrderWorkflow', {
       taskQueue: TASK_QUEUE,
       workflowId,
       args: [body],
       // Add workflow timeout
-      workflowExecutionTimeout: '2 minutes', // Increased from 30 seconds
+      workflowExecutionTimeout: '30 seconds',
       // Add task timeout
-      taskTimeout: '30 seconds', // Increased from 10 seconds
-      // Add retry policy
-      retry: {
-        initialInterval: '1 second',
-        maximumInterval: '10 seconds',
-        maximumAttempts: 3,
-        backoffCoefficient: 2,
-      }
+      taskTimeout: '10 seconds',
     });
 
     return NextResponse.json({

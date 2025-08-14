@@ -93,6 +93,8 @@ services:
       - backend
     networks:
       - temporal-network
+    # Add a startup delay to ensure Temporal is ready
+    command: sh -c "sleep 10 && npm start"
 
 volumes:
   postgresql-data:
