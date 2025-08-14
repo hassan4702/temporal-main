@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import type { WorkflowResult, WorkflowHistory, WorkflowStatus, ActivityProgress } from '@/types/order'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { useWorkflowWebSocket } from '@/lib/useWebSocket'
+import { CheckCircle, XCircle, Clock } from 'lucide-react'
 
 interface OrderStatusProps {
   latestWorkflowId?: string | null
@@ -105,11 +106,11 @@ export default function OrderStatus({ latestWorkflowId }: OrderStatusProps) {
   const getActivityStatusIcon = (status: 'pending' | 'completed' | 'failed') => {
     switch (status) {
       case 'completed':
-        return '✅'
+        return <CheckCircle className="w-4 h-4 text-green-600" />
       case 'failed':
-        return '❌'
+        return <XCircle className="w-4 h-4 text-red-600" />
       case 'pending':
-        return '⏳'
+        return <Clock className="w-4 h-4 text-yellow-600" />
     }
   }
 
@@ -209,15 +210,15 @@ export default function OrderStatus({ latestWorkflowId }: OrderStatusProps) {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <span>Inventory Check</span>
-                <span className="text-sm">{getActivityStatusIcon(activityProgress.inventoryCheck)}</span>
+                <div className="text-sm">{getActivityStatusIcon(activityProgress.inventoryCheck)}</div>
               </div>
               <div className="flex items-center justify-between">
                 <span>Payment Processing</span>
-                <span className="text-sm">{getActivityStatusIcon(activityProgress.paymentProcessing)}</span>
+                <div className="text-sm">{getActivityStatusIcon(activityProgress.paymentProcessing)}</div>
               </div>
               <div className="flex items-center justify-between">
                 <span>Shipping Calculation</span>
-                <span className="text-sm">{getActivityStatusIcon(activityProgress.shippingCalculation)}</span>
+                <div className="text-sm">{getActivityStatusIcon(activityProgress.shippingCalculation)}</div>
               </div>
             </div>
           </div>

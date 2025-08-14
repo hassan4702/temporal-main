@@ -1,0 +1,102 @@
+services:
+  # Temporal Services
+  postgresql:
+    image: postgres:13
+    container_name: temporal-postgresql
+    environment:
+      POSTGRES_PASSWORD: temporal
+      POSTGRES_USER: temporal
+      POSTGRES_DB: temporal
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgresql-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U temporal"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - temporal-network
+
+  temporal:
+    image: temporalio/auto-setup:1.22.3
+    container_name: temporal-server
+    environment:
+      - DB=postgresql
+      - DB_PORT=5432
+      - POSTGRES_USER=temporal
+      - POSTGRES_PWD=temporal
+      - POSTGRES_SEEDS=postgresql
+    ports:
+      - "7233:7233"
+    depends_on:
+      - postgresql
+    networks:
+      - temporal-network
+
+  temporal-web:
+    image: temporalio/web:1.15.0
+    container_name: temporal-web
+    environment:
+      - TEMPORAL_GRPC_ENDPOINT=temporal:7233
+      - TEMPORAL_PERMIT_WRITE_API=true
+    ports:
+      - "8088:8088"
+    depends_on:
+      - temporal
+    networks:
+      - temporal-network
+
+  # Backend Service (includes both worker and websocket server)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: temporal-app-backend
+    environment:
+      - NODE_ENV=development
+      - TEMPORAL_HOST=temporal
+      - TEMPORAL_PORT=7233
+      - TEMPORAL_NAMESPACE=default
+      - WEBSOCKET_PORT=8081
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    restart: unless-stopped
+    depends_on:
+      - temporal
+    networks:
+      - temporal-network
+
+  # Frontend Service
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: temporal-app-frontend
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://localhost:3000
+      - NEXT_PUBLIC_WEBSOCKET_URL=ws://localhost:8081
+      - TEMPORAL_HOST=temporal:7233
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    restart: unless-stopped
+    depends_on:
+      - backend
+    networks:
+      - temporal-network
+
+volumes:
+  postgresql-data:
+
+networks:
+  temporal-network:
+    driver: bridge

@@ -383,7 +383,8 @@ class TemporalWebSocketServer {
 }
 
 // Start the WebSocket server
-const server = new TemporalWebSocketServer(8081);
+const port = parseInt(process.env.WEBSOCKET_PORT || '8081', 10);
+const server = new TemporalWebSocketServer(port);
 
 // Graceful shutdown
 process.on('SIGINT', () => {
@@ -398,4 +399,4 @@ process.on('SIGTERM', () => {
   process.exit(0);
 });
 
-console.log('Temporal WebSocket server is running on port 8081');
+console.log(`Temporal WebSocket server is running on port ${port}`);

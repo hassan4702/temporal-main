@@ -1,5 +1,6 @@
 import InventoryDashboard from '@/components/InventoryDashboard'
 import Link from 'next/link'
+import { ArrowLeft } from 'lucide-react'
 
 export default function InventoryPage() {
   return (
@@ -17,7 +18,8 @@ export default function InventoryPage() {
               href="/" 
               className="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
             >
-              ← Back to Order Processing
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Order Processing
             </Link>
           </div>
         </div>

@@ -6,7 +6,7 @@ const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'Temporal Order Processing',
-  description: 'Order processing system built with Temporal and Next.js',
+  description: 'Order processing system ',
 }
 
 export default function RootLayout({

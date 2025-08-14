@@ -98,17 +98,11 @@ export async function getInventoryActivity({ productId }: { productId?: string |
         
         return {
             inventory,
-            stats,
-            success: true
+            stats
         };
     } catch (error) {
         console.error('Error in getInventoryActivity:', error);
-        return {
-            inventory: null,
-            stats: null,
-            success: false,
-            error: error instanceof Error ? error.message : 'Unknown error'
-        };
+        return { inventory: [], stats: { totalProducts: 0, totalQuantity: 0 } };
     }
 }
 
@@ -116,12 +110,9 @@ export async function resetInventoryActivity() {
     try {
         await inventoryService.resetInventory();
         console.log('✅ Inventory reset successfully');
-        return { success: true, message: 'Inventory reset successfully' };
+        return { reset: true };
     } catch (error) {
         console.error('Error in resetInventoryActivity:', error);
-        return { 
-            success: false, 
-            error: error instanceof Error ? error.message : 'Unknown error' 
-        };
+        return { reset: false };
     }
 }

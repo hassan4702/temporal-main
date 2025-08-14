@@ -19,22 +19,56 @@ A Next.js 15 application that provides a user interface for the Temporal order p
 ## Prerequisites
 
 - Node.js 18+ 
+- Docker and Docker Compose
 - Temporal backend running on `localhost:7233`
 - Backend worker running with task queue `order-processing`
 
 ## Setup
 
-1. Install dependencies:
-   ```bash
-   npm install
-   ```
+### 1. Start Temporal Server
 
-2. Start the development server:
-   ```bash
-   npm run dev
-   ```
+First, start the Temporal server using Docker:
 
-3. Open [http://localhost:3000](http://localhost:3000) in your browser
+```bash
+git clone https://github.com/temporalio/docker-compose.git
+cd docker-compose
+docker compose up
+```
+
+This will start Temporal server on `localhost:7233` with the Temporal Web UI available at `http://localhost:8233`.
+
+### 2. Start the Backend
+
+In a new terminal, navigate to the backend directory and start both the worker and WebSocket server:
+
+```bash
+cd backend
+npm install
+npm start
+```
+
+This will start both:
+- The Temporal worker that processes orders
+- The WebSocket server that provides real-time updates to the frontend
+
+Alternatively, you can run them separately:
+- `npm run worker` - Start only the Temporal worker
+- `npm run websocket` - Start only the WebSocket server
+
+### 3. Start the Frontend
+
+In another terminal, navigate to the frontend directory and start the development server:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+### 4. Access the Application
+
+- Frontend: [http://localhost:3000](http://localhost:3000)
+- Temporal Web UI: [http://localhost:8233](http://localhost:8233)
 
 ## Usage
 

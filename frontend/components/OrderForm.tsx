@@ -94,7 +94,7 @@ export default function OrderForm({ onOrderCreated }: OrderFormProps) {
             <SelectContent>
               {PRODUCTS.map(product => (
                 <SelectItem key={product.id} value={product.id}>
-                  <div className="flex flex-col">
+                  <div className="flex flex-row w-full justify-between items-center gap-2">
                     <span className="font-medium">{product.name}</span>
                     <span className="text-sm text-gray-500">{formatCurrency(product.price)}</span>
                   </div>

@@ -11,7 +11,7 @@ const {
   getInventoryActivity,
   resetInventoryActivity
 } = proxyActivities<typeof activities>({
-  startToCloseTimeout: '1 minute'
+  startToCloseTimeout: '10 seconds'
 });
 
 export async function ProcessOrderWorkflow(input: {
