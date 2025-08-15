@@ -54,16 +54,19 @@ export default function OrderForm({ onOrderCreated }: OrderFormProps) {
       }))
       setProducts(productList)
 
-      // Set default product 
-      if (productList.length > 0 && !formData.productId) {
-        setFormData(prev => ({ ...prev, productId: productList[0].id }))
-      }
+      // Set default product only if no product is currently selected
+      setFormData(prev => {
+        if (productList.length > 0 && !prev.productId) {
+          return { ...prev, productId: productList[0].id }
+        }
+        return prev
+      })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch products')
     } finally {
       setLoading(false)
     }
-  }, [formData.productId])
+  }, [])
 
   useEffect(() => {
     fetchProducts()
@@ -107,10 +110,17 @@ export default function OrderForm({ onOrderCreated }: OrderFormProps) {
   }, [formData, onOrderCreated])
 
   const handleInputChange = useCallback((name: string, value: string | number) => {
-    setFormData(prev => ({
-      ...prev,
-      [name]: name === 'quantity' ? parseInt(String(value)) || 1 : String(value),
-    }))
+    setFormData(prev => {
+      const newValue = name === 'quantity' ? parseInt(String(value)) || 1 : String(value)
+      // Only update if the value actually changed
+      if (prev[name as keyof OrderRequest] === newValue) {
+        return prev
+      }
+      return {
+        ...prev,
+        [name]: newValue,
+      }
+    })
   }, [])
 
   if (loading) {

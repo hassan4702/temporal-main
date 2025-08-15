@@ -5,9 +5,9 @@ const temporalClient = new Client({ namespace: 'default' });
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { workflowId: string } }
+  { params }: { params: Promise<{ workflowId: string }> }
 ) {
-  const { workflowId } = params;
+  const { workflowId } = await params;
 
   const encoder = new TextEncoder();
   const stream = new ReadableStream({
