@@ -35,7 +35,7 @@ cd docker-compose
 docker compose up
 ```
 
-This will start Temporal server on `localhost:7233` with the Temporal Web UI available at `http://localhost:8233`.
+This will start Temporal server on `localhost:7233` with the Temporal Web UI available at `http://localhost:8080`.
 
 ### 2. Start the Backend
 
@@ -120,3 +120,4 @@ frontend/
 │   └── order.ts           # Order-related types
 └── package.json           # Dependencies and scripts
 ```
+

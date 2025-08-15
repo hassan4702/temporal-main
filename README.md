@@ -171,3 +171,52 @@ For production deployment, consider:
 - Configuring external monitoring and logging
 - Using Docker secrets for sensitive environment variables
 - Setting up proper backup strategies for the PostgreSQL database
+
+
+
+## Setup
+
+### 1. Start Temporal Server
+
+First, start the Temporal server using Docker:
+
+```bash
+git clone https://github.com/temporalio/docker-compose.git
+cd docker-compose
+docker compose up
+```
+
+This will start Temporal server on `localhost:7233` with the Temporal Web UI available at `http://localhost:8080`.
+
+### 2. Start the Backend
+
+In a new terminal, navigate to the backend directory and start both the worker and WebSocket server:
+
+```bash
+cd backend
+npm install
+npm start
+```
+
+This will start both:
+- The Temporal worker that processes orders
+- The WebSocket server that provides real-time updates to the frontend
+
+Alternatively, you can run them separately:
+- `npm run worker` - Start only the Temporal worker
+- `npm run websocket` - Start only the WebSocket server
+
+### 3. Start the Frontend
+
+In another terminal, navigate to the frontend directory and start the development server:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+### 4. Access the Application
+
+- Frontend: [http://localhost:3000](http://localhost:3000)
+- Temporal Web UI: [http://localhost:8233](http://localhost:8233)
