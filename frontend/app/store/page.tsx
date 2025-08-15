@@ -26,7 +26,6 @@ interface Product {
   description: string
 }
 
-// Product metadata mapping (could be moved to a separate config file)
 const PRODUCT_METADATA: Record<string, Omit<Product, 'id' | 'price' | 'stock' | 'reserved'>> = {
   'Shirts': {
     name: 'Premium Cotton Shirts',
