@@ -6,7 +6,6 @@ export async function POST(request: NextRequest): Promise<NextResponse<OrderResp
   try {
     const body: OrderRequest = await request.json();
     
-    // Validate required fields
     if (!body.productId || !body.quantity || !body.customerId || !body.customerAddress) {
       return NextResponse.json(
         { error: 'Missing required fields: productId, quantity, customerId, customerAddress' },
@@ -14,17 +13,14 @@ export async function POST(request: NextRequest): Promise<NextResponse<OrderResp
       );
     }
 
-    // Generate a unique workflow ID
     const workflowId = `order-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-    // Start the workflow with timeout
+    // Start the workflow
     const handle = await temporalClient.workflow.start('ProcessOrderWorkflow', {
       taskQueue: TASK_QUEUE,
       workflowId,
       args: [body],
-      // Add workflow timeout
       workflowExecutionTimeout: '30 seconds',
-      // Add workflow task timeout
       workflowTaskTimeout: '10 seconds',
     });
 
@@ -35,7 +31,6 @@ export async function POST(request: NextRequest): Promise<NextResponse<OrderResp
   } catch (error) {
     console.error('Error starting workflow:', error);
     
-    // Provide more specific error information
     let errorMessage = 'Failed to start order processing workflow';
     if (error instanceof Error) {
       errorMessage = error.message;

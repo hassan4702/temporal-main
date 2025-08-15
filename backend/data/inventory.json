@@ -1,9 +1,9 @@
 {
   "Shirts": {
-    "stock": 1,
+    "stock": 0,
     "price": 100,
     "reserved": 0,
-    "lastUpdated": "2025-08-20T12:43:06.308Z"
+    "lastUpdated": "2025-08-20T16:39:25.043Z"
   },
   "Pants": {
     "stock": 10,

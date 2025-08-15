@@ -29,7 +29,7 @@ export async function GET(
       );
     }
 
-    // If workflow is still running, return status
+    
     if (description.status.name === 'RUNNING') {
       return NextResponse.json({
         status: 'processing',

@@ -28,7 +28,7 @@ export async function GET(
           
           let result = null;
           
-          // Only get result if workflow is completed
+       
           if (description.status.name === 'COMPLETED') {
             result = await handle.result().catch(() => null);
           }
@@ -50,7 +50,7 @@ export async function GET(
           const message = `data: ${JSON.stringify(update)}\n\n`;
           controller.enqueue(encoder.encode(message));
           
-          // Stop polling if workflow is completed or failed, but keep connection open
+          // Stop polling if workflow is completed or failed
           if (description.status.name === 'COMPLETED' || description.status.name === 'FAILED') {
             clearInterval(interval);
 

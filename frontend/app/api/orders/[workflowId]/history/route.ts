@@ -38,7 +38,7 @@ export async function GET(
     const events: SimpleHistoryEvent[] = [];
 
     history.events?.forEach((event) => {
-      // Extract timestamp
+      
       const timestamp = event.eventTime?.seconds?.toNumber() 
         ? new Date(event.eventTime.seconds.toNumber() * 1000).toISOString()
         : new Date().toISOString();
@@ -60,15 +60,12 @@ export async function GET(
         activity = event.activityTaskScheduledEventAttributes.activityType?.name || 'Unknown Activity';
         status = 'scheduled';
       } else if (event.activityTaskStartedEventAttributes) {
-        // For started events, we need to get the activity name from the scheduled event
         activity = 'Activity Started';
         status = 'started';
       } else if (event.activityTaskCompletedEventAttributes) {
-        // For completed events, we need to get the activity name from the scheduled event
         activity = 'Activity Completed';
         status = 'completed';
       } else if (event.activityTaskFailedEventAttributes) {
-        // For failed events, we need to get the activity name from the scheduled event
         activity = 'Activity Failed';
         status = 'failed';
       }
