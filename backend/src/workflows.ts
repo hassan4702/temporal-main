@@ -50,7 +50,7 @@ export async function ProcessOrderWorkflow(input: {
     };
   }
 
-  // Step 3: Confirm inventory (reduce actual stock)
+  // Step 3: Confirm inventory 
   const inventoryConfirmed = await confirmInventoryActivity({
     productId: input.productId,
     quantity: inventory.reservedQuantity

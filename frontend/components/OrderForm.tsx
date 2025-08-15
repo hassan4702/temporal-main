@@ -9,13 +9,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import type { OrderRequest } from '@/types/order'
 import { formatCurrency } from '@/lib/utils'
 
-interface InventoryItem {
-  stock: number
-  price: number
-  reserved: number
-  lastUpdated: string
-}
-
 interface Product {
   id: string
   name: string
@@ -37,6 +30,7 @@ export default function OrderForm({ onOrderCreated }: OrderFormProps) {
     customerId: '',
     customerAddress: '',
   })
+
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [result, setResult] = useState<{ workflowId: string; status: string } | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -50,19 +44,17 @@ export default function OrderForm({ onOrderCreated }: OrderFormProps) {
         throw new Error('Failed to fetch inventory')
       }
       const data = await response.json()
-
-      // Transform inventory data to products format
+      
       const productList: Product[] = Object.entries(data.inventory || {}).map(([id, item]: [string, any]) => ({
         id,
-        name: id, // Using id as name for now, could be enhanced with a name mapping
+        name: id, 
         price: item.price,
         description: `${id} - ${item.stock - item.reserved} units available`,
         stock: item.stock - item.reserved
       }))
-
       setProducts(productList)
 
-      // Set default product if available
+      // Set default product 
       if (productList.length > 0 && !formData.productId) {
         setFormData(prev => ({ ...prev, productId: productList[0].id }))
       }

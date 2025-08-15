@@ -1,222 +1,152 @@
 # Temporal Order Management Application
 
-This is a containerized order management application built with Temporal for workflow orchestration, featuring a Next.js frontend and Node.js backend with WebSocket support.
+A modern order management application built with Temporal workflows for reliable, scalable, and observable business processes. Features real-time order tracking with Server-Sent Events (SSE) and a clean, interview-ready architecture.
 
-## Architecture
+## 🏗️ Architecture
 
-The application consists of the following services:
+The application uses Temporal workflows for all business logic, providing:
+
+- **Reliability**: Automatic retries and error handling
+- **Observability**: Complete workflow history and real-time tracking
+- **Scalability**: Distributed execution with horizontal scaling
+- **Simplicity**: Clean separation of concerns
+
+### Services
 
 - **Temporal Server**: Workflow orchestration engine
 - **PostgreSQL**: Database for Temporal
 - **Temporal Web UI**: Web interface for monitoring workflows
-- **Backend**: Node.js service running both the Temporal worker and WebSocket server
-- **Frontend**: Next.js application for order management
+- **Backend**: Node.js Temporal worker
+- **Frontend**: Next.js application with SSE real-time updates
 
-## Prerequisites
+## 🚀 Quick Start
 
+### Prerequisites
 - Docker
 - Docker Compose
 
-## Quick Start
+### 1. Start All Services
+```bash
+docker compose up -d
+```
 
-1. **Clone and navigate to the project directory:**
-   ```bash
-   cd temporal-main
-   ```
-
-2. **Start all services:**
-   ```bash
-   docker compose up -d
-   ```
-
-3. **Access the applications:**
-   - **Frontend**: http://localhost:3000
-   - **Temporal Web UI**: http://localhost:8088
-   - **Backend API**: http://localhost:8081
-   - **WebSocket Server**: ws://localhost:8081
-
-## Running Without Docker
-
-If you prefer not to use Docker, you can run the services individually:
-
-### Prerequisites
-- Node.js (v18 or higher)
-- PostgreSQL database running locally
-- Temporal server running locally
-
-### Backend Setup
-1. **Navigate to the backend directory:**
-   ```bash
-   cd backend
-   ```
-
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
-
-3. **Start the backend service:**
-   ```bash
-   npm start
-   ```
-
-4. **Start the WebSocket server (in a separate terminal):**
-   ```bash
-   npm run websocket
-   ```
-
-### Frontend Setup
-1. **Navigate to the frontend directory:**
-   ```bash
-   cd frontend
-   ```
-
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
-
-3. **Start the development server:**
-   ```bash
-   npm run dev
-   ```
-
-### Access the applications:
+### 2. Access Applications
 - **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:8081
-- **WebSocket Server**: ws://localhost:8081
+- **Temporal Web UI**: http://localhost:8080
+- **Backend API**: Available through frontend
 
-**Note**: When running without Docker, you'll need to ensure PostgreSQL and Temporal server are running locally and update the environment variables accordingly.
+## 📋 Features
 
-## Service Details
+### Order Processing Workflow
+- **Inventory Check**: Verifies product availability
+- **Payment Processing**: Handles payment transactions
+- **Shipping Calculation**: Calculates shipping costs
+- **Real-time Updates**: Live status tracking via SSE
 
-### Temporal Services
-- **PostgreSQL**: Database for Temporal (port 5432)
-- **Temporal Server**: Main workflow engine (port 7233)
-- **Temporal Web UI**: Web interface for workflow monitoring (port 8088)
+### Inventory Management
+- **Get Inventory**: Retrieve current stock levels
+- **Reset Inventory**: Reset to initial state
+- **Real-time Stats**: Live inventory statistics
 
-### Application Services
-- **Backend**: Runs both the Temporal worker and WebSocket server (port 8081)
-- **Frontend**: Next.js application (port 3000)
+### Real-time Tracking
+- **Activity Progress**: Individual step status
+- **Workflow Status**: Overall order status
+- **Error Handling**: Graceful error states
+- **Auto-reconnection**: Browser handles SSE reconnection
 
-## Development
+## 🔧 API Endpoints
 
-### Running in Development Mode
-The services are configured with volume mounts for development:
-- Code changes in `./backend` and `./frontend` will be reflected immediately
-- Node modules are preserved in Docker volumes
+### Order Management
+- `POST /api/orders` - Create new order (starts ProcessOrderWorkflow)
+- `GET /api/orders/[workflowId]` - Get order status
+- `GET /api/orders/[workflowId]/history` - Get workflow history
 
-### Stopping Services
-```bash
-docker compose down
+### Real-time Updates
+- `GET /api/workflows/[workflowId]/events` - SSE endpoint for real-time updates
+
+### Inventory Management
+- `GET /api/inventory` - Get inventory status (starts GetInventoryWorkflow)
+- `POST /api/inventory` - Reset inventory (starts ResetInventoryWorkflow)
+
+## 🏛️ Workflow Architecture
+
+### ProcessOrderWorkflow
+```typescript
+// Complete order processing with activities
+const inventory = await checkInventoryActivity({ productId, quantity });
+const payment = await processPaymentActivity({ reservedQuantity, unitPrice, customerId });
+const shipping = await calculateShippingActivity({ reservedQuantity, totalAmount, customerAddress });
 ```
 
-### Viewing Logs
-```bash
-# All services
-docker compose logs -f
+### Activity Progress Tracking
+- **Inventory Check**: Verifies product availability
+- **Payment Processing**: Handles payment transactions  
+- **Shipping Calculation**: Calculates shipping costs
 
-# Specific service
-docker compose logs -f backend
-docker compose logs -f frontend
-docker compose logs -f temporal
-```
+### Workflow States
+1. **RUNNING**: Workflow executing activities
+2. **COMPLETED**: Order processed successfully
+3. **FAILED**: Order processing failed
 
-### Rebuilding Services
-```bash
-# Rebuild all services
-docker compose up -d --build
+## 🛠️ Development
 
-# Rebuild specific service
-docker compose up -d --build backend
-```
+### Running Without Docker
 
-## Environment Variables
+#### Prerequisites
+- Node.js (v18 or higher)
+- PostgreSQL database
+- Temporal server
 
-### Backend Environment Variables
-- `TEMPORAL_HOST`: Temporal server host (default: temporal)
-- `TEMPORAL_PORT`: Temporal server port (default: 7233)
-- `TEMPORAL_NAMESPACE`: Temporal namespace (default: default)
-- `WEBSOCKET_PORT`: WebSocket server port (default: 8081)
-
-### Frontend Environment Variables
-- `NEXT_PUBLIC_API_URL`: Backend API URL
-- `NEXT_PUBLIC_WEBSOCKET_URL`: WebSocket server URL
-
-## Troubleshooting
-
-### Common Issues
-
-1. **Temporal connection errors**: Ensure the temporal service is healthy before starting the backend
-2. **Port conflicts**: Check if ports 3000, 8081, 7233, 8088, or 5432 are already in use
-3. **Build failures**: Ensure Docker has sufficient resources allocated
-
-### Health Checks
-All services include health checks. You can monitor them with:
-```bash
-docker compose ps
-```
-
-### Cleanup
-To completely remove all containers, volumes, and images:
-```bash
-docker compose down -v --rmi all
-```
-
-## Production Deployment
-
-For production deployment, consider:
-- Using production-grade PostgreSQL
-- Setting up proper SSL/TLS certificates
-- Configuring external monitoring and logging
-- Using Docker secrets for sensitive environment variables
-- Setting up proper backup strategies for the PostgreSQL database
-
-
-
-## Setup
-
-### 1. Start Temporal Server
-
-First, start the Temporal server using Docker:
-
-```bash
-git clone https://github.com/temporalio/docker-compose.git
-cd docker-compose
-docker compose up
-```
-
-This will start Temporal server on `localhost:7233` with the Temporal Web UI available at `http://localhost:8080`.
-
-### 2. Start the Backend
-
-In a new terminal, navigate to the backend directory and start both the worker and WebSocket server:
-
+#### Backend Setup
 ```bash
 cd backend
 npm install
 npm start
 ```
 
-This will start both:
-- The Temporal worker that processes orders
-- The WebSocket server that provides real-time updates to the frontend
-
-Alternatively, you can run them separately:
-- `npm run worker` - Start only the Temporal worker
-- `npm run websocket` - Start only the WebSocket server
-
-### 3. Start the Frontend
-
-In another terminal, navigate to the frontend directory and start the development server:
-
+#### Frontend Setup
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-### 4. Access the Application
+### Environment Variables
 
-- Frontend: [http://localhost:3000](http://localhost:3000)
-- Temporal Web UI: [http://localhost:8233](http://localhost:8233)
+#### Backend
+- `TEMPORAL_HOST`: Temporal server host (default: temporal)
+- `TEMPORAL_PORT`: Temporal server port (default: 7233)
+- `TEMPORAL_NAMESPACE`: Temporal namespace (default: default)
+
+#### Frontend
+- `NEXT_PUBLIC_API_URL`: Backend API URL
+- `TEMPORAL_HOST`: Temporal server host
+
+## 📊 Real-time Updates
+
+### SSE Implementation
+- **Polling**: Checks Temporal every 2 seconds
+- **Activity Parsing**: Extracts status from workflow history
+- **State Management**: React hook manages connection and data
+- **Auto-reconnection**: Browser handles connection management
+
+### Activity Status Logic
+- **Activity completes** → Check workflow result
+- **Workflow success** → Mark activity as completed
+- **Workflow failure** → Mark activity as failed
+
+## 🔍 Monitoring
+
+### Temporal Web UI
+- **URL**: http://localhost:8080
+- **Features**: Workflow monitoring, history, debugging
+
+### Application Logs
+```bash
+# View all logs
+docker compose logs -f
+
+# View specific service
+docker compose logs -f backend
+docker compose logs -f frontend
+```

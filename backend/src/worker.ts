@@ -16,7 +16,7 @@ async function run() {
 
       console.log("Worker started. Listening for workflows...");
       await worker.run();
-      break; // Success, exit the retry loop
+      break; 
     } catch (err) {
       retries++;
       console.error(`Connection attempt ${retries} failed:`, err);
@@ -26,7 +26,7 @@ async function run() {
         process.exit(1);
       }
       
-      // Wait before retrying (exponential backoff)
+    
       const delay = Math.min(1000 * Math.pow(2, retries - 1), 10000);
       console.log(`Retrying in ${delay}ms...`);
       await new Promise(resolve => setTimeout(resolve, delay));

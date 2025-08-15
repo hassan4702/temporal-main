@@ -86,6 +86,7 @@ export async function calculateShippingActivity({ reservedQuantity, totalAmount,
 }
 
 
+
 export async function getInventoryActivity({ productId }: { productId?: string | undefined }) {
     try {
         const inventory = await inventoryService.getInventoryStatus(productId);

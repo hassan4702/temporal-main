@@ -1,21 +1,21 @@
 {
   "Shirts": {
-    "stock": 30,
+    "stock": 0,
     "price": 100,
     "reserved": 0,
-    "lastUpdated": "2025-08-15T10:14:08.486Z"
+    "lastUpdated": "2025-08-20T12:43:06.308Z"
   },
   "Pants": {
-    "stock": 14,
+    "stock": 12,
     "price": 200,
     "reserved": 0,
-    "lastUpdated": "2025-08-14T19:18:00.399Z"
+    "lastUpdated": "2025-08-20T12:47:24.986Z"
   },
   "Shoes": {
-    "stock": 28,
+    "stock": 26,
     "price": 300,
     "reserved": 0,
-    "lastUpdated": "2025-08-14T19:19:57.468Z"
+    "lastUpdated": "2025-08-20T12:47:07.828Z"
   },
   "Hats": {
     "stock": 39,
@@ -24,10 +24,10 @@
     "lastUpdated": "2025-08-14T19:21:47.867Z"
   },
   "Socks": {
-    "stock": 50,
+    "stock": 48,
     "price": 500,
     "reserved": 0,
-    "lastUpdated": "2025-08-14T16:36:27.272Z"
+    "lastUpdated": "2025-08-20T13:28:31.628Z"
   },
   "Gloves": {
     "stock": 60,

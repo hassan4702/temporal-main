@@ -21,7 +21,7 @@ class InventoryService {
 
   private constructor() {
     this.ensureDataDirectory();
-    this.loadInventory();
+    this.loadInventory(); 
   }
 
   static getInstance(): InventoryService {

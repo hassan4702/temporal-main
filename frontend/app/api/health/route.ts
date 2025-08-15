@@ -13,7 +13,7 @@ export async function GET() {
           address: 'localhost:7233'
         }
       },
-      note: 'Temporal connection test disabled for troubleshooting'
+
     });
   } catch (error) {
     console.error('Health check failed:', error);

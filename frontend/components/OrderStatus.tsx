@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import type { WorkflowResult, WorkflowHistory, WorkflowStatus, ActivityProgress } from '@/types/order'
 import { formatCurrency, formatDate } from '@/lib/utils'
-import { useWorkflowWebSocket } from '@/lib/useWebSocket'
+import { useWorkflowSSE } from '@/lib/useSSE'
 import { CheckCircle, XCircle, Clock } from 'lucide-react'
 
 interface OrderStatusProps {
@@ -19,16 +19,13 @@ export default function OrderStatus({ latestWorkflowId }: OrderStatusProps) {
   const [error, setError] = useState<string | null>(null)
   const [showHistory, setShowHistory] = useState(false)
 
-  // WebSocket hook for real-time updates
+  // SSE hook for real-time updates
   const {
     isConnected,
-    isConnecting,
-    error: wsError,
     workflowData,
     activityProgress,
-    connect,
-    disconnect
-  } = useWorkflowWebSocket(workflowId)
+    error: sseError
+  } = useWorkflowSSE(workflowId)
 
   // Auto-update workflow ID when latestWorkflowId prop changes
   useEffect(() => {
@@ -37,23 +34,20 @@ export default function OrderStatus({ latestWorkflowId }: OrderStatusProps) {
       // Automatically start checking status for new workflow
       if (latestWorkflowId) {
         handleCheckStatus(latestWorkflowId)
-        // Auto-connect to WebSocket for real-time updates
-        if (!isConnected && !isConnecting) {
-          connect()
-        }
       }
     }
-  }, [latestWorkflowId, workflowId, isConnected, isConnecting, connect])
+  }, [latestWorkflowId, workflowId])
 
-  // Update result when WebSocket data changes
+  // Update result when SSE data changes
   useEffect(() => {
     if (workflowData) {
-      setResult({
+      const newResult = {
         status: workflowData.result?.status || workflowData.status, // Use result status if available, fallback to workflow status
         transactionId: workflowData.result?.transactionId,
         shipping: workflowData.result?.shipping,
         refunded: workflowData.result?.refunded
-      })
+      };
+      setResult(newResult);
     }
   }, [workflowData])
 
@@ -103,6 +97,8 @@ export default function OrderStatus({ latestWorkflowId }: OrderStatusProps) {
     }
   }
 
+
+
   const getActivityStatusIcon = (status: 'pending' | 'completed' | 'failed') => {
     switch (status) {
       case 'completed':
@@ -147,34 +143,11 @@ export default function OrderStatus({ latestWorkflowId }: OrderStatusProps) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">Order Status</h3>
-        <div className="flex items-center gap-4">
-          {/* WebSocket Connection Status */}
-          <div className="flex items-center gap-2 text-sm">
-            <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : isConnecting ? 'bg-yellow-500' : 'bg-red-500'}`}></div>
-            <span className={isConnected ? 'text-green-600' : isConnecting ? 'text-yellow-600' : 'text-red-600'}>
-              {isConnected ? 'WebSocket Connected' : isConnecting ? 'Connecting...' : 'Disconnected'}
-            </span>
-          </div>
-          
-          {/* Connection Controls */}
-          <div className="flex gap-2">
-            <Button
-              onClick={connect}
-              variant="outline"
-              size="sm"
-              disabled={isConnected || isConnecting}
-            >
-              Connect
-            </Button>
-            <Button
-              onClick={disconnect}
-              variant="outline"
-              size="sm"
-              disabled={!isConnected}
-            >
-              Disconnect
-            </Button>
-          </div>
+        <div className="flex items-center gap-2 text-sm">
+          <div className={`w-2 h-2 rounded-full bg-green-500`}></div>
+          <span className={'text-green-600' }>
+          Live Updates
+          </span>
         </div>
       </div>
 
@@ -185,40 +158,72 @@ export default function OrderStatus({ latestWorkflowId }: OrderStatusProps) {
             <p className="text-xs text-blue-600 font-mono">{workflowId}</p>
           </div>
           <div className="text-sm text-blue-600">
-            {isConnected && (
+            
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></div>
                 <span>Real-time Updates</span>
               </div>
-            )}
+     
           </div>
         </div>
       </div>
-
-      {error && !error.includes('WebSocket') && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <h4 className="font-medium text-red-800">Error</h4>
-          <p className="text-red-700 mt-1">{error}</p>
-        </div>
-      )}
+    
 
       {result && (
         <div className="space-y-4">
           {/* Activity Progress */}
           <div className="bg-white border border-gray-200 rounded-lg p-4">
             <h4 className="font-medium mb-3">Activity Progress</h4>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span>Inventory Check</span>
-                <div className="text-sm">{getActivityStatusIcon(activityProgress.inventoryCheck)}</div>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                <div>
+                  <span className="font-medium">Inventory Check</span>
+                  <p className="text-sm text-gray-600">Verifying product availability</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={`text-sm font-medium ${
+                    activityProgress.inventoryCheck === 'completed' ? 'text-green-600' :
+                    activityProgress.inventoryCheck === 'failed' ? 'text-red-600' : 'text-yellow-600'
+                  }`}>
+                    {activityProgress.inventoryCheck === 'completed' ? 'In Stock' :
+                     activityProgress.inventoryCheck === 'failed' ? 'Out of Stock' : 'Checking...'}
+                  </span>
+                  {getActivityStatusIcon(activityProgress.inventoryCheck)}
+                </div>
               </div>
-              <div className="flex items-center justify-between">
-                <span>Payment Processing</span>
-                <div className="text-sm">{getActivityStatusIcon(activityProgress.paymentProcessing)}</div>
+              
+              <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                <div>
+                  <span className="font-medium">Payment Processing</span>
+                  <p className="text-sm text-gray-600">Processing payment transaction</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={`text-sm font-medium ${
+                    activityProgress.paymentProcessing === 'completed' ? 'text-green-600' :
+                    activityProgress.paymentProcessing === 'failed' ? 'text-red-600' : 'text-yellow-600'
+                  }`}>
+                    {activityProgress.paymentProcessing === 'completed' ? 'Payment Successful' :
+                     activityProgress.paymentProcessing === 'failed' ? 'Payment Failed' : 'Processing...'}
+                  </span>
+                  {getActivityStatusIcon(activityProgress.paymentProcessing)}
+                </div>
               </div>
-              <div className="flex items-center justify-between">
-                <span>Shipping Calculation</span>
-                <div className="text-sm">{getActivityStatusIcon(activityProgress.shippingCalculation)}</div>
+              
+              <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                <div>
+                  <span className="font-medium">Shipping Calculation</span>
+                  <p className="text-sm text-gray-600">Calculating shipping costs</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={`text-sm font-medium ${
+                    activityProgress.shippingCalculation === 'completed' ? 'text-green-600' :
+                    activityProgress.shippingCalculation === 'failed' ? 'text-red-600' : 'text-yellow-600'
+                  }`}>
+                    {activityProgress.shippingCalculation === 'completed' ? 'Calculated' :
+                     activityProgress.shippingCalculation === 'failed' ? 'Failed' : 'Calculating...'}
+                  </span>
+                  {getActivityStatusIcon(activityProgress.shippingCalculation)}
+                </div>
               </div>
             </div>
           </div>

@@ -24,8 +24,8 @@ export async function POST(request: NextRequest): Promise<NextResponse<OrderResp
       args: [body],
       // Add workflow timeout
       workflowExecutionTimeout: '30 seconds',
-      // Add task timeout
-      taskTimeout: '10 seconds',
+      // Add workflow task timeout
+      workflowTaskTimeout: '10 seconds',
     });
 
     return NextResponse.json({
