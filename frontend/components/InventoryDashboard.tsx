@@ -37,6 +37,7 @@ export default function InventoryDashboard() {
         throw new Error('Failed to fetch inventory')
       }
       const data = await response.json()
+      console.log(data)
       setInventoryData(data)
       setError(null)
     } catch (err) {
@@ -55,11 +56,11 @@ export default function InventoryDashboard() {
         },
         body: JSON.stringify({ action: 'reset' }),
       })
-      
+
       if (!response.ok) {
         throw new Error('Failed to reset inventory')
       }
-      
+
       // Refresh inventory data
       await fetchInventory()
     } catch (err) {
@@ -140,7 +141,7 @@ export default function InventoryDashboard() {
             <div className="text-2xl font-bold">{stats.totalProducts}</div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">Total Stock</CardTitle>
@@ -149,7 +150,7 @@ export default function InventoryDashboard() {
             <div className="text-2xl font-bold">{stats.totalStock}</div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">Reserved</CardTitle>
@@ -158,7 +159,7 @@ export default function InventoryDashboard() {
             <div className="text-2xl font-bold text-orange-600">{stats.totalReserved}</div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">Available</CardTitle>

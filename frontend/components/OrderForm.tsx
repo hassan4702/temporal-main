@@ -1,29 +1,38 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 // Icons will be added after lucide-react is installed
-import type { OrderRequest, Product } from '@/types/order'
+import type { OrderRequest } from '@/types/order'
 import { formatCurrency } from '@/lib/utils'
 
-const PRODUCTS: Product[] = [
-  { id: 'Shirts', name: 'Premium Cotton Shirts', price: 100, description: 'High-quality cotton shirts', stock: 50 },
-  { id: 'Pants', name: 'Classic Denim Pants', price: 200, description: 'Comfortable denim pants', stock: 30 },
-  { id: 'Shoes', name: 'Leather Running Shoes', price: 300, description: 'Professional running shoes', stock: 25 },
-  { id: 'Hats', name: 'Stylish Baseball Caps', price: 400, description: 'Trendy baseball caps', stock: 40 },
-  { id: 'Socks', name: 'Comfortable Cotton Socks', price: 500, description: 'Soft cotton socks', stock: 100 },
-]
+interface InventoryItem {
+  stock: number
+  price: number
+  reserved: number
+  lastUpdated: string
+}
+
+interface Product {
+  id: string
+  name: string
+  price: number
+  description: string
+  stock: number
+}
 
 interface OrderFormProps {
   onOrderCreated?: (workflowId: string) => void
 }
 
 export default function OrderForm({ onOrderCreated }: OrderFormProps) {
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
   const [formData, setFormData] = useState<OrderRequest>({
-    productId: 'Shirts',
+    productId: '',
     quantity: 1,
     customerId: '',
     customerAddress: '',
@@ -32,7 +41,43 @@ export default function OrderForm({ onOrderCreated }: OrderFormProps) {
   const [result, setResult] = useState<{ workflowId: string; status: string } | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  const selectedProduct = PRODUCTS.find(p => p.id === formData.productId)
+  // Fetch products from inventory API
+  const fetchProducts = useCallback(async () => {
+    try {
+      setLoading(true)
+      const response = await fetch('/api/inventory')
+      if (!response.ok) {
+        throw new Error('Failed to fetch inventory')
+      }
+      const data = await response.json()
+
+      // Transform inventory data to products format
+      const productList: Product[] = Object.entries(data.inventory || {}).map(([id, item]: [string, any]) => ({
+        id,
+        name: id, // Using id as name for now, could be enhanced with a name mapping
+        price: item.price,
+        description: `${id} - ${item.stock - item.reserved} units available`,
+        stock: item.stock - item.reserved
+      }))
+
+      setProducts(productList)
+
+      // Set default product if available
+      if (productList.length > 0 && !formData.productId) {
+        setFormData(prev => ({ ...prev, productId: productList[0].id }))
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch products')
+    } finally {
+      setLoading(false)
+    }
+  }, [formData.productId])
+
+  useEffect(() => {
+    fetchProducts()
+  }, [fetchProducts])
+
+  const selectedProduct = products.find(p => p.id === formData.productId)
   const totalPrice = selectedProduct ? selectedProduct.price * formData.quantity : 0
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
@@ -57,7 +102,7 @@ export default function OrderForm({ onOrderCreated }: OrderFormProps) {
       }
 
       setResult(data)
-      
+
       // Notify parent component about the new order
       if (onOrderCreated && data.workflowId) {
         onOrderCreated(data.workflowId)
@@ -76,6 +121,49 @@ export default function OrderForm({ onOrderCreated }: OrderFormProps) {
     }))
   }, [])
 
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-2">
+          <h3 className="text-lg font-semibold">Place New Order</h3>
+        </div>
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
+          <p className="text-gray-600">Loading products...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-2">
+          <h3 className="text-lg font-semibold">Place New Order</h3>
+        </div>
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <h4 className="font-medium text-red-800">Error</h4>
+          <p className="text-red-700 mt-1">{error}</p>
+          <Button onClick={fetchProducts} variant="outline" size="sm" className="mt-2">
+            Retry
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
+  if (products.length === 0) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-2">
+          <h3 className="text-lg font-semibold">Place New Order</h3>
+        </div>
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
+          <p className="text-gray-600">No products available</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2">
@@ -92,7 +180,7 @@ export default function OrderForm({ onOrderCreated }: OrderFormProps) {
               <SelectValue placeholder="Select a product" />
             </SelectTrigger>
             <SelectContent>
-              {PRODUCTS.map(product => (
+              {products.map(product => (
                 <SelectItem key={product.id} value={product.id}>
                   <div className="flex flex-row w-full justify-between items-center gap-2">
                     <span className="font-medium">{product.name}</span>

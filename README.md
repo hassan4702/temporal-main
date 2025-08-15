@@ -35,6 +35,59 @@ The application consists of the following services:
    - **Backend API**: http://localhost:8081
    - **WebSocket Server**: ws://localhost:8081
 
+## Running Without Docker
+
+If you prefer not to use Docker, you can run the services individually:
+
+### Prerequisites
+- Node.js (v18 or higher)
+- PostgreSQL database running locally
+- Temporal server running locally
+
+### Backend Setup
+1. **Navigate to the backend directory:**
+   ```bash
+   cd backend
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+3. **Start the backend service:**
+   ```bash
+   npm start
+   ```
+
+4. **Start the WebSocket server (in a separate terminal):**
+   ```bash
+   npm run websocket
+   ```
+
+### Frontend Setup
+1. **Navigate to the frontend directory:**
+   ```bash
+   cd frontend
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+3. **Start the development server:**
+   ```bash
+   npm run dev
+   ```
+
+### Access the applications:
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:8081
+- **WebSocket Server**: ws://localhost:8081
+
+**Note**: When running without Docker, you'll need to ensure PostgreSQL and Temporal server are running locally and update the environment variables accordingly.
+
 ## Service Details
 
 ### Temporal Services
