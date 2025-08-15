@@ -38,7 +38,6 @@ export async function ProcessOrderWorkflow(input: {
   });
 
   if (!payment.paymentSuccessful) {
-    // Compensating transaction: release inventory
     await releaseInventoryActivity({
       productId: input.productId,
       quantity: inventory.reservedQuantity
@@ -58,8 +57,6 @@ export async function ProcessOrderWorkflow(input: {
   });
 
   if (!inventoryConfirmed.confirmed) {
-    // If inventory confirmation fails, we need to handle this
-    // For now, we'll still proceed but log the issue
     console.error('Inventory confirmation failed, but proceeding with order');
   }
 
@@ -78,7 +75,7 @@ export async function ProcessOrderWorkflow(input: {
   };
 }
 
-// New inventory management workflows
+
 export async function GetInventoryWorkflow(input: { productId?: string }) {
   const result = await getInventoryActivity({ productId: input.productId || undefined });
   return result;

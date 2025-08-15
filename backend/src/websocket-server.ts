@@ -55,7 +55,6 @@ class TemporalWebSocketServer {
         this.removeClientFromAllSubscriptions(ws);
       });
 
-      // Send welcome message
       ws.send(JSON.stringify({
         type: 'connection_established',
         message: 'Connected to Temporal WebSocket server',

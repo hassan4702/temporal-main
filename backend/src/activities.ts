@@ -1,15 +1,13 @@
-// activities.ts
 import { inventoryService } from './inventory-service';
 
 export async function checkInventoryActivity({ productId, quantity }: { productId: string; quantity: number }) {
     try {
-        // Use shared inventory service for thread-safe operations
         const result = await inventoryService.checkAndReserveInventory(productId, quantity);
 
         if (result.available) {
-            console.log(`✅ Inventory check successful: Reserved ${result.reservedQuantity} ${productId} at $${result.unitPrice} each`);
+            console.log(`Inventory check successful: Reserved ${result.reservedQuantity} ${productId} at $${result.unitPrice} each`);
         } else {
-            console.log(`❌ Inventory check failed: Insufficient stock for ${quantity} ${productId}`);
+            console.log(`Inventory check failed: Insufficient stock for ${quantity} ${productId}`);
         }
 
         return {
@@ -27,19 +25,18 @@ export async function checkInventoryActivity({ productId, quantity }: { productI
 export async function processPaymentActivity({ reservedQuantity, unitPrice, customerId }: { reservedQuantity: number; unitPrice: number; customerId: string }) {
     const totalAmount = reservedQuantity * unitPrice;
 
-    // Test scenario: Payment failure for specific customer IDs
     if (customerId.includes('fail')) {
-        console.log(`❌ Payment failed for customer: ${customerId}`);
+        console.log(` Payment failed for customer: ${customerId}`);
         return { paymentSuccessful: false, transactionId: `TXN-FAILED-${Math.floor(Math.random() * 10000)}`, totalAmount };
     }
 
-    const paymentSuccessful = Math.random() > 0.5; // 50% chance of success
+    const paymentSuccessful = Math.random() > 0.5;
     const transactionId = `TXN-${Math.floor(Math.random() * 10000)}`;
 
     if (paymentSuccessful) {
-        console.log(`✅ Payment successful: ${transactionId}, amount: ${totalAmount}`);
+        console.log(` Payment successful: ${transactionId}, amount: ${totalAmount}`);
     } else {
-        console.log(`❌ Payment failed: ${transactionId}, amount: ${totalAmount}`);
+        console.log(` Payment failed: ${transactionId}, amount: ${totalAmount}`);
     }
 
     return { paymentSuccessful, transactionId, totalAmount };
@@ -47,13 +44,12 @@ export async function processPaymentActivity({ reservedQuantity, unitPrice, cust
 
 export async function releaseInventoryActivity({ productId, quantity }: { productId: string; quantity: number }) {
     try {
-        // Use shared inventory service to release reserved items
         const result = await inventoryService.releaseInventory(productId, quantity);
 
         if (result.released) {
-            console.log(`✅ Released ${quantity} of ${productId} back to inventory`);
+            console.log(` Released ${quantity} of ${productId} back to inventory`);
         } else {
-            console.log(`❌ Failed to release ${quantity} of ${productId}`);
+            console.log(` Failed to release ${quantity} of ${productId}`);
         }
 
         return { released: result.released };
@@ -65,13 +61,12 @@ export async function releaseInventoryActivity({ productId, quantity }: { produc
 
 export async function confirmInventoryActivity({ productId, quantity }: { productId: string; quantity: number }) {
     try {
-        // Use shared inventory service to confirm the reservation
         const result = await inventoryService.confirmInventory(productId, quantity);
 
         if (result.confirmed) {
-            console.log(`✅ Confirmed ${quantity} of ${productId} - stock reduced`);
+            console.log(` Confirmed ${quantity} of ${productId} - stock reduced`);
         } else {
-            console.log(`❌ Failed to confirm ${quantity} of ${productId}`);
+            console.log(` Failed to confirm ${quantity} of ${productId}`);
         }
 
         return { confirmed: result.confirmed };
@@ -85,7 +80,7 @@ export async function calculateShippingActivity({ reservedQuantity, totalAmount,
     const shippingCost = reservedQuantity * 10;
     const estimatedDelivery = `${3 + Math.floor(Math.random() * 5)} business days`;
 
-    console.log(`📦 Shipping calculated: ${shippingCost} for ${reservedQuantity} items to ${customerAddress}`);
+    console.log(` Shipping calculated: ${shippingCost} for ${reservedQuantity} items to ${customerAddress}`);
 
     return { shippingCost, estimatedDelivery, finalTotal: totalAmount + shippingCost };
 }
@@ -125,7 +120,7 @@ export async function getInventoryActivity({ productId }: { productId?: string |
 export async function resetInventoryActivity() {
     try {
         await inventoryService.resetInventory();
-        console.log('✅ Inventory reset successfully');
+        console.log(' Inventory reset successfully');
         return { reset: true };
     } catch (error) {
         console.error('Error in resetInventoryActivity:', error);

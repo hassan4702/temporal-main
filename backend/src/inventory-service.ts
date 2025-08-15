@@ -1,11 +1,11 @@
-// inventory-service.ts
+
 import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { join } from 'path';
 
 export interface InventoryItem {
   stock: number;
   price: number;
-  reserved: number; // Track reserved items
+  reserved: number;
   lastUpdated: string;
 }
 
@@ -17,7 +17,6 @@ class InventoryService {
   private static instance: InventoryService;
   private inventory: Inventory = {};
   private readonly dataFile = join(__dirname, '../data/inventory.json');
-  private readonly lockFile = join(__dirname, '../data/inventory.lock');
   private isInitialized = false;
 
   private constructor() {
@@ -47,7 +46,6 @@ class InventoryService {
         this.inventory = JSON.parse(data);
         console.log('Inventory loaded from file');
       } else {
-        // Initialize with default inventory
         this.inventory = {
           "Shirts": { stock: 10, price: 100, reserved: 0, lastUpdated: new Date().toISOString() },
           "Pants": { stock: 20, price: 200, reserved: 0, lastUpdated: new Date().toISOString() },
@@ -66,7 +64,6 @@ class InventoryService {
       this.isInitialized = true;
     } catch (error) {
       console.error('Error loading inventory:', error);
-      // Fallback to default inventory
       this.inventory = {
         "Shirts": { stock: 10, price: 100, reserved: 0, lastUpdated: new Date().toISOString() },
         "Pants": { stock: 20, price: 200, reserved: 0, lastUpdated: new Date().toISOString() },
@@ -91,7 +88,6 @@ class InventoryService {
     }
   }
 
-  // Thread-safe inventory operations with optimistic locking
   async checkAndReserveInventory(productId: string, quantity: number): Promise<{
     available: boolean;
     reservedQuantity: number;
@@ -107,29 +103,25 @@ class InventoryService {
       return { available: false, reservedQuantity: 0, unitPrice: 0 };
     }
 
-    // Check if we have enough available stock (stock - reserved)
     const availableStock = item.stock - item.reserved;
-    
+
     if (availableStock < quantity) {
       console.log(`Insufficient stock: Requested ${quantity} ${productId}, available: ${availableStock}`);
       return { available: false, reservedQuantity: 0, unitPrice: 0 };
     }
 
-    // Reserve the items atomically
     const reservationId = `res-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    
-    // Update inventory atomically
+
     this.inventory[productId] = {
       ...item,
       reserved: item.reserved + quantity,
       lastUpdated: new Date().toISOString()
     };
 
-    // Persist changes
     this.saveInventory();
 
     console.log(`Reserved ${quantity} ${productId}, remaining available: ${item.stock - this.inventory[productId].reserved}`);
-    
+
     return {
       available: true,
       reservedQuantity: quantity,
@@ -149,16 +141,14 @@ class InventoryService {
       return { released: false };
     }
 
-    // Release the reserved items
     const newReserved = Math.max(0, item.reserved - quantity);
-    
+
     this.inventory[productId] = {
       ...item,
       reserved: newReserved,
       lastUpdated: new Date().toISOString()
     };
 
-    // Persist changes
     this.saveInventory();
 
     console.log(`Released ${quantity} ${productId}, remaining reserved: ${newReserved}`);
@@ -176,10 +166,9 @@ class InventoryService {
       return { confirmed: false };
     }
 
-    // Confirm the reservation by reducing both stock and reserved
     const newStock = Math.max(0, item.stock - quantity);
     const newReserved = Math.max(0, item.reserved - quantity);
-    
+
     this.inventory[productId] = {
       ...item,
       stock: newStock,
@@ -187,7 +176,6 @@ class InventoryService {
       lastUpdated: new Date().toISOString()
     };
 
-    // Persist changes
     this.saveInventory();
 
     console.log(`Confirmed ${quantity} ${productId}, new stock: ${newStock}, remaining reserved: ${newReserved}`);
@@ -202,16 +190,15 @@ class InventoryService {
     if (productId) {
       return this.inventory[productId] || null;
     }
-    
-    return { ...this.inventory }; // Return a copy to prevent external modification
+
+    return { ...this.inventory };
   }
 
   async resetInventory(): Promise<void> {
-    this.loadInventory(); // This will reset to default values
+    this.loadInventory();
     console.log('Inventory reset to default values');
   }
 
-  // Get inventory statistics
   getInventoryStats(): {
     totalProducts: number;
     totalStock: number;
