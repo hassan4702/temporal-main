@@ -30,6 +30,13 @@ export default function OrderStatus({ latestWorkflowId }: OrderStatusProps) {
   // Auto-update workflow ID when latestWorkflowId prop changes
   useEffect(() => {
     if (latestWorkflowId && latestWorkflowId !== workflowId) {
+      // Clear all old data when a new order is placed
+      setResult(null)
+      setHistory(null)
+      setError(null)
+      setShowHistory(false)
+      setIsChecking(false)
+      
       setWorkflowId(latestWorkflowId)
       // Automatically start checking status for new workflow
       if (latestWorkflowId) {
@@ -134,6 +141,34 @@ export default function OrderStatus({ latestWorkflowId }: OrderStatusProps) {
         <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
           <p className="text-gray-600">No active order workflow to track</p>
           <p className="text-sm text-gray-500 mt-2">Place an order to see real-time status updates</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Show loading state when workflowId is set but no result yet
+  if (workflowId && !result && !isChecking) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-2">
+          <h3 className="text-lg font-semibold">Order Status</h3>
+        </div>
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-blue-800">New Order Created</p>
+              <p className="text-xs text-blue-600 font-mono">{workflowId}</p>
+            </div>
+            <div className="text-sm text-blue-600">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></div>
+                <span>Initializing...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
+          <p className="text-gray-600">Setting up real-time monitoring...</p>
         </div>
       </div>
     )

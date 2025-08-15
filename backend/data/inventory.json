@@ -1,15 +1,15 @@
 {
   "Shirts": {
-    "stock": 0,
+    "stock": 1,
     "price": 100,
     "reserved": 0,
     "lastUpdated": "2025-08-20T12:43:06.308Z"
   },
   "Pants": {
-    "stock": 12,
+    "stock": 10,
     "price": 200,
     "reserved": 0,
-    "lastUpdated": "2025-08-20T12:47:24.986Z"
+    "lastUpdated": "2025-08-20T16:21:07.228Z"
   },
   "Shoes": {
     "stock": 26,
@@ -33,7 +33,7 @@
     "stock": 60,
     "price": 600,
     "reserved": 0,
-    "lastUpdated": "2025-08-14T16:36:27.272Z"
+    "lastUpdated": "2025-08-20T16:23:25.019Z"
   },
   "Jackets": {
     "stock": 70,

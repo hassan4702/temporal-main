@@ -6,7 +6,6 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const productId = searchParams.get('productId');
 
-    // Start a Temporal workflow to get inventory
     const workflowId = `inventory-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     
     const handle = await temporalClient.workflow.start('GetInventoryWorkflow', {

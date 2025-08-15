@@ -21,6 +21,16 @@ export function useWorkflowSSE(workflowId?: string) {
   const workflowCompletedRef = useRef(false);
 
   useEffect(() => {
+    // Resets all states
+    setWorkflowData(null);
+    setActivityProgress({
+      inventoryCheck: 'pending',
+      paymentProcessing: 'pending',
+      shippingCalculation: 'pending'
+    });
+    setError(null);
+    setIsConnected(false);
+
     if (!workflowId) {
       return;
     }
